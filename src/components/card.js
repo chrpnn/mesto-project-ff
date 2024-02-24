@@ -6,11 +6,12 @@ function getTemplate() {
 
 export function createCard(cardData, deleteCard, openImage, likeCard) {
   const card = getTemplate().cloneNode(true);
+  const cardImage = card.querySelector(".card__image");
 
   // заполняем данные из массива
   card.querySelector(".card__title").textContent = cardData.name;
-  card.querySelector(".card__image").src = cardData.link;
-  card.querySelector(".card__image").alt = cardData.name;
+  cardImage.src = cardData.link;
+  cardImage.alt = cardData.name;
 
   // обработчик для удаления
   const deleteButton = card.querySelector(".card__delete-button");
@@ -25,7 +26,6 @@ export function createCard(cardData, deleteCard, openImage, likeCard) {
   });
 
   // обработчик для открытия изображения
-  const cardImage = card.querySelector(".card__image");
   cardImage.addEventListener("click", () => {
     openImage(cardData);
   });

@@ -2,9 +2,7 @@ import { initialCards } from "./components/cards.js";
 import "../pages/index.css";
 import {
   openPopup,
-  closePopup,
-  closeOnEscKey,
-  setupCloseOnOverlayClick,
+  closePopup
 } from "./components/modal.js";
 import { deleteCard, createCard, likeCard } from "./components/card.js";
 
@@ -21,9 +19,9 @@ const addButton = document.querySelector(".profile__add-button");
 const image = imagePopup.querySelector(".popup__image");
 const caption = imagePopup.querySelector(".popup__caption");
 
-const editCloseButton = editPopup.querySelector(".popup__close");
-const addCloseButton = addPopup.querySelector(".popup__close");
-const imageCloseButton = imagePopup.querySelector(".popup__close");
+const buttonClosePopupProfile = editPopup.querySelector(".popup__close");
+const buttonClosePopupAdd = addPopup.querySelector(".popup__close");
+const buttonClosePopupImage = imagePopup.querySelector(".popup__close");
 
 // функция добавления карточек на страницу
 function addCardsToPage(initialCards) {
@@ -46,22 +44,18 @@ editButton.addEventListener("click", function () {
   nameInput.value = profileName.textContent;
   jobInput.value = profileDescription.textContent;
   openPopup(editPopup);
-  closeOnEscKey(editPopup);
-  setupCloseOnOverlayClick(editPopup, editPopup);
 });
 
-editCloseButton.addEventListener("click", function () {
+buttonClosePopupProfile.addEventListener("click", function () {
   closePopup(editPopup);
 });
 
 // попап добавление новых карточек
 addButton.addEventListener("click", function () {
   openPopup(addPopup);
-  closeOnEscKey(addPopup);
-  setupCloseOnOverlayClick(addPopup, addPopup);
 });
 
-addCloseButton.addEventListener("click", function () {
+buttonClosePopupAdd.addEventListener("click", function () {
   closePopup(addPopup);
 });
 
@@ -71,24 +65,21 @@ function openImage(cardData) {
   image.src = cardData.link;
   image.alt = cardData.name;
   caption.textContent = cardData.name;
-
   openPopup(imagePopup);
-  closeOnEscKey(imagePopup);
-  setupCloseOnOverlayClick(imagePopup, imagePopup);
-
-  imageCloseButton.addEventListener("click", function () {
-    closePopup(imagePopup);
-  });
 }
+
+buttonClosePopupImage.addEventListener("click", function () {
+  closePopup(imagePopup);
+});
 
 // Редактирование имени и информации о себе
 // Находим форму в DOM
-const formElement = document.querySelector(".popup_type_edit");
+const formPopupEdit = document.querySelector(".popup_type_edit");
 // Находим поля формы в DOM
-const nameInput = formElement.querySelector(".popup__input_type_name");
-const jobInput = formElement.querySelector(".popup__input_type_description");
+const nameInput = formPopupEdit.querySelector(".popup__input_type_name");
+const jobInput = formPopupEdit.querySelector(".popup__input_type_description");
 
-function handleFormSubmit(evt) {
+function handleSubmitProfileForm(evt) {
   evt.preventDefault(); // отмена стандартной отправки формы
 
   const nameValue = nameInput.value;
@@ -103,7 +94,7 @@ function handleFormSubmit(evt) {
 
 // Прикрепляем обработчик к форме:
 // он будет следить за событием “submit” - «отправка»
-formElement.addEventListener("submit", handleFormSubmit);
+formPopupEdit.addEventListener("submit", handleSubmitProfileForm);
 
 // добавление новой карточки
 // находим поля формы в DOM
@@ -111,19 +102,19 @@ const placeNameInput = addPopup.querySelector(".popup__input_type_card-name");
 const linkInput = addPopup.querySelector(".popup__input_type_url");
 
 // обработчик отправки формы для добавления карточки
-function handleAddFormSubmit(evt) {
+function handleSubmitAddForm(evt) {
   evt.preventDefault();
   const placeNameValue = placeNameInput.value;
   const linkValue = linkInput.value;
 
   // создание нового объекта карточки
-  const initialCards = {
+  const initialCard = {
     name: placeNameValue,
     link: linkValue,
   };
 
   // создание новуй карточки и добавление её в начало
-  const newCard = createCard(initialCards, deleteCard, openImage, likeCard);
+  const newCard = createCard(initialCard, deleteCard, openImage, likeCard);
   placesList.prepend(newCard);
 
   // очищаем форму
@@ -135,4 +126,4 @@ function handleAddFormSubmit(evt) {
 }
 
 // прикрепляем обработчик к форме добавления карточки
-addPopup.addEventListener("submit", handleAddFormSubmit);
+addPopup.addEventListener("submit", handleSubmitAddForm);
