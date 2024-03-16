@@ -1,8 +1,0 @@
-@import url('./__like-count/card__like-count.css');
-
-.card__like-container {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    justify-content: center; 
-}
