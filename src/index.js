@@ -10,28 +10,24 @@ import {
   updateUserAvatar,
 } from "./components/api.js";
 
+
+// Получение DOM элементов
 const editPopup = document.querySelector(".popup_type_edit");
 const addPopup = document.querySelector(".popup_type_new-card");
 const imagePopup = document.querySelector(".popup_type_image");
-const editProfileAvatarPopup = document.querySelector(
-  ".popup_type_avatar-edit"
-);
-
+const editProfileAvatarPopup = document.querySelector(".popup_type_avatar-edit");
 const placesList = document.querySelector(".places__list");
 const editButton = document.querySelector(".profile__edit-button");
 const profileName = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 const addButton = document.querySelector(".profile__add-button");
 const editProfileAvatarButton = document.querySelector(".profile__image");
-
 const image = imagePopup.querySelector(".popup__image");
 const caption = imagePopup.querySelector(".popup__caption");
-
 const buttonClosePopupProfile = editPopup.querySelector(".popup__close");
 const buttonClosePopupAdd = addPopup.querySelector(".popup__close");
 const buttonClosePopupImage = imagePopup.querySelector(".popup__close");
-const buttonClosePopupAvatar =
-  editProfileAvatarPopup.querySelector(".popup__close");
+const buttonClosePopupAvatar = editProfileAvatarPopup.querySelector(".popup__close");
 
 // попап редактирование профиля
 editButton.addEventListener("click", function () {
@@ -74,21 +70,31 @@ buttonClosePopupImage.addEventListener("click", function () {
   closePopup(imagePopup);
 });
 
-// Редактирование имени и информации о себе
-// Находим форму в DOM
+// редактирование имени и информации о себе, находим форму и поля формы для редактирования профиля
 const formPopupEdit = document.querySelector(".popup_type_edit");
-// Находим поля формы в DOM
 const nameInput = formPopupEdit.querySelector(".popup__input_type_name");
 const jobInput = formPopupEdit.querySelector(".popup__input_type_description");
 
-// Объявляем переменную для хранения состояния загрузки
+// объявляем переменную для хранения состояния загрузки
 let isLoading = false;
 
+// функция для отображения состояния загрузки
+function renderLoading(isLoading, button) {
+  
+  if (isLoading) {
+    button.textContent = "Сохранение...";
+    button.setAttribute("disabled", true);
+  } else {
+    button.textContent = "Сохранить";
+    button.removeAttribute("disabled");
+  }
+}
+
+// функция для обработки события отправки формы редактирования профиля
 function handleSubmitProfileForm(evt) {
   evt.preventDefault();
-  // Устанавливаем флаг isLoading в true, чтобы отобразить состояние загрузки
   isLoading = true;
-  renderLoading(true);
+  renderLoading(true, editPopup.querySelector(".popup__button"));
   // отмена стандартной отправки формы
   const updatedProfileData = {
     name: nameInput.value,
@@ -106,36 +112,24 @@ function handleSubmitProfileForm(evt) {
       console.log("Ошибка при обновлении данных профиля:", error);
     })
     .finally(() => {
-      // После завершения запроса с сервера сбрасываем флаг isLoading и обновляем состояние кнопки
       isLoading = false;
-      renderLoading(false);
+      renderLoading(false, editPopup.querySelector(".popup__button"));
     });
-}
-
-// Функция для отображения состояния загрузки
-function renderLoading(isLoading) {
-  const saveButton = editPopup.querySelector(".popup__button");
-  if (isLoading) {
-    saveButton.textContent = "Сохранение...";
-    saveButton.setAttribute("disabled", true);
-  } else {
-    saveButton.textContent = "Сохранить";
-    saveButton.removeAttribute("disabled");
-  }
 }
 
 // Прикрепляем обработчик к форме:
 // он будет следить за событием “submit” - «отправка»
 formPopupEdit.addEventListener("submit", handleSubmitProfileForm);
 
-// добавление новой карточки
-// находим поля формы в DOM
+// добавление новой карточки, находим поля формы в DOM
 const placeNameInput = addPopup.querySelector(".popup__input_type_card-name");
 const linkInput = addPopup.querySelector(".popup__input_type_url");
 
 // обработчик отправки формы для добавления карточки
 function handleSubmitAddForm(evt) {
   evt.preventDefault();
+  isLoading = true;
+  renderLoading(isLoading, addPopup.querySelector(".popup__button"));
   const placeNameValue = placeNameInput.value;
   const linkValue = linkInput.value;
   addNewCard(placeNameValue, linkValue)
@@ -145,11 +139,9 @@ function handleSubmitAddForm(evt) {
         updatedData,
         deleteCard,
         openImage,
-        likeCard,
         true
       );
       placesList.prepend(newCard);
-
       // очищаем форму
       placeNameInput.value = "";
       linkInput.value = "";
@@ -157,14 +149,17 @@ function handleSubmitAddForm(evt) {
     })
     .catch((error) => {
       console.log("Ошибка при обновлении данных профиля:", error);
+    })
+    .finally(() => {
+      isLoading = false;
+      renderLoading(isLoading, addPopup.querySelector(".popup__button"));
     });
 }
 
 // прикрепляем обработчик к форме добавления карточки
 addPopup.addEventListener("submit", handleSubmitAddForm);
 
-////////////// VALIDATION ////////////////////
-
+// объект с настройками валидации форм
 const validationObj = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
@@ -174,12 +169,15 @@ const validationObj = {
   errorClass: "popup__error_visible",
 };
 
+// включаем валидацию для всех форм
 enableValidation(validationObj);
 
+
+// получаем информацию о пользователе и карточках с сервера
 Promise.all([getUserInfo(), getCards()])
   .then((results) => {
     const [userData, cardsData] = results;
-    // Обновляем профиль пользователя
+    // обновляем профиль пользователя
     profileName.textContent = userData.name;
     profileDescription.textContent = userData.about;
     editProfileAvatarButton.style.backgroundImage = `url(${userData.avatar})`;
@@ -191,32 +189,36 @@ Promise.all([getUserInfo(), getCards()])
         cardData,
         deleteCard,
         openImage,
-        likeCard,
         isOwner
       );
       placesList.appendChild(newCard);
     });
   })
   .catch((error) => {
-    console.log(error);
+    console.log("Ошибка при загрузке данных с сервера:", error);
   });
 
 // смена аватарки профиля
 function handleEditUserAvatar(evt) {
   evt.preventDefault();
+  isLoading = true;
+  renderLoading(isLoading, editProfileAvatarPopup.querySelector(".popup__button"));
   const avatarUrlInput = editProfileAvatarPopup.querySelector(
     ".popup__input_type_edit-avatar"
   );
   const avatarUrl = avatarUrlInput.form.link.value;
   updateUserAvatar(avatarUrl)
     .then((data) => {
-      // В случае успешного изменения аватара, обновляем его на странице и закрываем форму
+      // в случае успешного изменения аватара, обновляем его на странице и закрываем форму
       editProfileAvatarButton.style.backgroundImage = `url(${data.avatar})`;
-      console.log(editProfileAvatarButton.style.backgroundImage);
       closePopup(editProfileAvatarPopup);
     })
     .catch((error) => {
       console.error("Ошибка при обновлении аватара:", error);
+    })
+    .finally(() => {
+      isLoading = false;
+      renderLoading(isLoading, editProfileAvatarPopup.querySelector(".popup__button"));
     });
 }
 
