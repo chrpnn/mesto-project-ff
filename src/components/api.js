@@ -16,122 +16,65 @@ const config = {
     },
 };
 
-const fetchData = (url) => {
-    return fetch(url, {
-        headers: config.headers,
-    })
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                return Promise.reject(response.status);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-};
+const checkResponse = (res) => res.ok ? res.json() : Promise.reject(res.status)
+
+const anyRequest = (url, options) => {
+    return fetch(url, options)
+    .then(res => checkResponse(res))
+}
 
 const getUserInfo = () => {
-    return fetchData(`${config.baseUrl}/users/me`);
+    return anyRequest(`${config.baseUrl}/users/me`, {
+        headers: config.headers,
+    });
 };
 
 const getCards = () => {
-    return fetchData(`${config.baseUrl}/cards`);
+    return anyRequest(`${config.baseUrl}/cards`, {
+        headers: config.headers,
+    });
 };
 
 const updateUserProfile = (updatedData) => {
-    return fetch(`${config.baseUrl}/users/me`, {
+    return anyRequest(`${config.baseUrl}/users/me`, {
         method: "PATCH",
         headers: config.headers,
         body: JSON.stringify(updatedData),
-    })
-        .then((response) => {
-            if (response.ok) {
-                console.log(response);
-                return response.json();
-            } else {
-                return Promise.reject(response.status);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+    });
 };
 
 const addNewCard = (name, link) => {
-    return fetch(`${config.baseUrl}/cards`, {
+    return anyRequest(`${config.baseUrl}/cards`, {
         method: "POST",
         headers: config.headers,
         body: JSON.stringify({
             name,
             link,
         }),
-    })
-        .then((response) => {
-            if (response.ok) {
-                console.log(response);
-                return response.json();
-            } else {
-                return Promise.reject(response.status);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+    });
 };
 
 const deleteCardFromServer = (cardId) => {
-    return fetch(`${config.baseUrl}/cards/${cardId}`, {
+    return anyRequest(`${config.baseUrl}/cards/${cardId}`, {
         method: "DELETE",
         headers: config.headers,
-    })
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                return Promise.reject(response.status);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+    });
 };
 
-function toggleLike(cardId, isLiked) {
+const toggleLike = (cardId, isLiked) => {
     const method = isLiked ? "DELETE" : "PUT";
-    return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    return anyRequest(`${config.baseUrl}/cards/likes/${cardId}`, {
         method: method,
         headers: config.headers,
-    })
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                return Promise.reject(response.status);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
+    });
+};
 
-function updateUserAvatar(url) {
-    return fetch(`${config.baseUrl}/users/me/avatar`, {
+const updateUserAvatar = (url) => {
+    return anyRequest(`${config.baseUrl}/users/me/avatar`, {
         method: "PATCH",
         headers: config.headers,
         body: JSON.stringify({
             avatar: url,
         }),
-    })
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                return Promise.reject(response.status);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
+    });
+};

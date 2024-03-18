@@ -21,7 +21,7 @@ function updateLikeButtonState(button, isLiked) {
   }
 }
 
-export function createCard(cardData, deleteCard, openImage, isOwner) {
+export function createCard(cardData, deleteCard, openImage, isOwner, userData) {
   const card = getTemplate().cloneNode(true);
   const cardImage = card.querySelector(".card__image");
   // заполняем данные из массива
@@ -32,6 +32,12 @@ export function createCard(cardData, deleteCard, openImage, isOwner) {
   const likeCount = cardData.likes.length;
   const likeCountElement = card.querySelector(".card__like-count");
   likeCountElement.textContent = likeCount;
+
+  // устанавливаем класс если карточка была лайкнута пользователем
+  const like = card.querySelector(".card__like-button");
+  if (cardData.likes.some(like => like._id === userData._id)) {
+    like.classList.add("card__like-button_is-active");
+  }
 
   // если пользователь является владельцем, добавляем иконку удаления
   if (isOwner) {
